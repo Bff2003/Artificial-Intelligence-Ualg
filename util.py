@@ -6,6 +6,9 @@ class Node():
     
     def __str__(self):
         return f"(State: {self.state}, Parent: {self.parent}, Action: {self.action})"
+    
+    def __repr__(self):
+        return f"(State: {self.state}, Parent: {self.parent}, Action: {self.action})"
 
 
 class StackFrontier():
@@ -17,6 +20,9 @@ class StackFrontier():
 
     def contains_state(self, state):
         return any(node.state == state for node in self.frontier)
+    
+    def get_states(self) -> list:
+        return [node.state for node in self.frontier]
 
     def empty(self):
         return len(self.frontier) == 0
@@ -30,7 +36,10 @@ class StackFrontier():
             return node
     
     def __str__(self):
-        return f"StackFrontier: {self.frontier}"
+        return f"StackFrontier: ({', '.join(str(node) for node in self.frontier)})"
+    
+    def __repr__(self):
+        return f"StackFrontier: ({', '.join(str(node) for node in self.frontier)})"
 
 
 class QueueFrontier(StackFrontier):
@@ -44,4 +53,7 @@ class QueueFrontier(StackFrontier):
             return node
     
     def __str__(self):
-        return f"QueueFrontier: {self.frontier}"
+        return f"QueueFrontier: ({', '.join(str(node) for node in self.frontier)})"
+    
+    def __repr__(self):
+        return f"QueueFrontier: ({', '.join(str(node) for node in self.frontier)})"

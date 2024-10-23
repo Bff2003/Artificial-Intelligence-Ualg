@@ -52,21 +52,24 @@ def load_data(directory):
                 pass
 
 
-def main():
+def main(source: str = None, target: str = None, directory: str = "large"):
     if len(sys.argv) > 2:
         sys.exit("Usage: python degrees.py [directory]")
-    directory = sys.argv[1] if len(sys.argv) == 2 else "large"
+    directory = sys.argv[1] if len(sys.argv) == 2 else directory
 
     # Load data from files into memory
     print("Loading data...")
     load_data(directory)
     print("Data loaded.")
 
-    # source = person_id_for_name(input("Name: "))
-    source = person_id_for_name("Emma Watson")
+    if source == None:
+        source = input("Name: ")
+    if target == None:
+        target = input("Name: ")
+    source = person_id_for_name(source)
     if source is None:
         sys.exit("Person not found.")
-    target = person_id_for_name("Jennifer Lawrence")
+    target = person_id_for_name(target)
     if target is None:
         sys.exit("Person not found.")
 
@@ -93,45 +96,55 @@ def shortest_path(source, target):
     If no possible path, returns None.
     """
 
-    # Initialize frontier to just the starting position
-    start = Node(state=source, parent=None, action=None)
-    frontier = QueueFrontier()
-    frontier.add(start)
+    print("Source:", source, "Target:", target) 
+    print("Source:", people[source]["name"], "Target:", people[target]["name"])
+    # movies[movie_id]["title"]
+    # people[person_id]["name"]
 
-    # Initialize an empty explored set
-    explored = set()
-    visited = set()
+    # create a frontier to nodes to explore
+    to_explore = QueueFrontier()
+    to_explore.add(Node(state=source, parent=None, action=None))
 
-    # Keep looping until solution is found
+    last_node = None
     while True:
-        # If nothing left in frontier, then no path
-        if frontier.empty():
+        # If there are no more nodes to explore, return None
+        # if all nodes have been visited and the target was not found, it is not connected
+        if to_explore.empty():
             return None
 
-        # Choose a node from the frontier
-        node = frontier.remove()
-        state = node.state
+        node = to_explore.remove()
+
+        to_explore, found = explore(node, to_explore, target)
+        if type(found) is Node:
+            last_node = found
+            break
     
-        # Mark node as explored
-        explored.add(state)
+    return mount_path(last_node)
 
-        # Add neighbors to frontier
-        for movie_id, person_id in neighbors_for_person(state):
-            if not frontier.contains_state(person_id) and person_id not in explored:
-                child = Node(state=person_id, parent=node, action=movie_id)
+def mount_path(node: Node) -> list:
+    path = []
+    while node.parent is not None:
+        path.append((node.action, node.state))
+        node = node.parent
+    path.reverse()
+    return path
 
-                # If child is the target, then we have a solution
-                if child.state == target:
-                    path = []
-                    while child.parent is not None:
-                        path.append((child.action, child.state))
-                        child = child.parent
-                    path.reverse()
-                    return path
+def explore(node: Node, to_explore: QueueFrontier, target: str) -> (QueueFrontier, Node|None):
+    """
+    returns a tuple of the new to_explore, and if the target was found
+    """
+    neighbors = neighbors_for_person(node.state)
+    print("Start Neighbors:", len(neighbors))
+    for movie_id, person_id in neighbors: # for each neighbor
+        if person_id == target:
+            print("Found Target")
+            return to_explore, Node(state=person_id, parent=node, action=movie_id)
 
-                frontier.add(child)
+        if not to_explore.contains_state(person_id): # if the neighbor has not been explored, add it to the to_explore list
+            to_explore.add(Node(state=person_id, parent=node, action=movie_id))
+    print("End Visited:", to_explore.get_states())
+    return to_explore, None
 
-        visited.add(state)
 
 def person_id_for_name(name):
     """
@@ -173,4 +186,4 @@ def neighbors_for_person(person_id):
 
 
 if __name__ == "__main__":
-    main()
+    main("Tom Cruise", "Gal Gadot", "large")

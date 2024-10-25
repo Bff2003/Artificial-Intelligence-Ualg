@@ -101,6 +101,13 @@ def shortest_path(source, target):
     # movies[movie_id]["title"]
     # people[person_id]["name"]
 
+    if source == target:
+        return []
+
+    # create a set to store visited nodes
+    visited = set()
+    visited.add(source)
+
     # create a frontier to nodes to explore
     to_explore = QueueFrontier()
     to_explore.add(Node(state=source, parent=None, action=None))
@@ -114,7 +121,7 @@ def shortest_path(source, target):
 
         node = to_explore.remove()
 
-        to_explore, found = explore(node, to_explore, target)
+        to_explore, visited, found = explore(node, to_explore, visited, target)
         if type(found) is Node:
             last_node = found
             break
@@ -129,21 +136,22 @@ def mount_path(node: Node) -> list:
     path.reverse()
     return path
 
-def explore(node: Node, to_explore: QueueFrontier, target: str) -> (QueueFrontier, Node|None):
+def explore(node: Node, to_explore: QueueFrontier, visited: set, target: str) -> (QueueFrontier, set, Node|None):
     """
-    returns a tuple of the new to_explore, and if the target was found
+    returns a tuple of the new to_explore, visited, and if the target was found
     """
     neighbors = neighbors_for_person(node.state)
     print("Start Neighbors:", len(neighbors))
     for movie_id, person_id in neighbors: # for each neighbor
         if person_id == target:
             print("Found Target")
-            return to_explore, Node(state=person_id, parent=node, action=movie_id)
+            return to_explore, visited, Node(state=person_id, parent=node, action=movie_id)
 
-        if not to_explore.contains_state(person_id): # if the neighbor has not been explored, add it to the to_explore list
+        if person_id not in visited: # if the neighbor has not been visited, add it to the to_explore list
+            visited.add(person_id)
             to_explore.add(Node(state=person_id, parent=node, action=movie_id))
-    print("End Visited:", to_explore.get_states())
-    return to_explore, None
+    print("End Visited:", visited)
+    return to_explore, visited, None
 
 
 def person_id_for_name(name):
@@ -186,4 +194,4 @@ def neighbors_for_person(person_id):
 
 
 if __name__ == "__main__":
-    main("Tom Cruise", "Gal Gadot", "large")
+    main("Kevin Bacon", "Tom Hanks", "small")

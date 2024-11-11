@@ -22,7 +22,7 @@ my_knowladge = And(
 # Puzzle 0
 # A says "I am both a knight and a knave."
 knowledge0 = And(
-    # TODO
+    Implication(AKnight, And(AKnight, AKnave)), # If A is a knight, then A is both a knight and a knave
 )
 
 # Puzzle 1

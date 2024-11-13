@@ -45,7 +45,15 @@ knowledge1 = And(
 # A says "We are the same kind."
 # B says "We are of different kinds."
 knowledge2 = And(
-    # TODO
+    my_knowledge,
+
+    # A says "We are the same kind."
+    Implication(AKnight, Or(And(AKnight, BKnight), And(AKnave, BKnave))), # If A is saying the truth
+    Implication(AKnave, Not(Or(And(AKnight, BKnight), And(AKnave, BKnave)))), # If A is a lier
+                
+    # B says "We are of different kinds."
+    Implication(BKnight, Or(And(AKnight, BKnave), And(AKnave, BKnight))), # If B is saying the truth
+    Implication(BKnave, Not(Or(And(AKnight, BKnave), And(AKnave, BKnight)))) # If B is a lier
 )
 
 # Puzzle 3

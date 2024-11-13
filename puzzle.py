@@ -34,7 +34,11 @@ knowledge0 = And(
 # A says "We are both knaves."
 # B says nothing.
 knowledge1 = And(
-    # TODO
+    my_knowladge,
+
+    # A says "We are both knaves."
+    Implication(AKnight, And(AKnave, BKnave)), # If A is saying the truth
+    Implication(AKnave, Not(And(AKnave, BKnave))) # If A is a lier
 )
 
 # Puzzle 2

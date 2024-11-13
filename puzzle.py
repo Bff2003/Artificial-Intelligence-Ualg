@@ -26,8 +26,18 @@ my_knowledge = And(
 # A says "I am both a knight and a knave."
 knowledge0 = And(
     my_knowledge,
-    Implication(AKnight, And(AKnight, AKnave)), # If A is saying the truth, then A is both a knight and a knave
-    Implication(AKnave, Not(And(AKnight, AKnave))) # If A is a lier, then A is not both a knight and a knave
+
+    # A says "I am both a knight and a knave."
+    Implication(
+        AKnight,  # If A is saying the truth, then A is both a knight and a knave
+        And(AKnight, AKnave)
+    ),
+    Implication(
+        AKnave,   # If A is a lier, then A is not both a knight and a knave
+        Not(
+            And(AKnight, AKnave)
+        )
+    )
 )
 
 # Puzzle 1
@@ -37,8 +47,8 @@ knowledge1 = And(
     my_knowledge,
 
     # A says "We are both knaves."
-    Implication(AKnight, And(AKnave, BKnave)), # If A is saying the truth
-    Implication(AKnave, Not(And(AKnave, BKnave))) # If A is a lier
+    Implication(AKnight, And(AKnave, BKnave)),  # If A is saying the truth
+    Implication(AKnave, Not(And(AKnave, BKnave)))  # If A is a lier
 )
 
 # Puzzle 2
@@ -48,12 +58,40 @@ knowledge2 = And(
     my_knowledge,
 
     # A says "We are the same kind."
-    Implication(AKnight, Or(And(AKnight, BKnight), And(AKnave, BKnave))), # If A is saying the truth
-    Implication(AKnave, Not(Or(And(AKnight, BKnight), And(AKnave, BKnave)))), # If A is a lier
+    Implication( 
+        AKnight,  # If A is saying the truth
+        Or(
+            And(AKnight, BKnight), 
+            And(AKnave, BKnave)
+        )
+    ), 
+    Implication(
+        AKnave,  # If A is a lier
+        Not(
+            Or(
+                And(AKnight, BKnight), 
+                And(AKnave, BKnave)
+            )
+        )
+    ),
                 
     # B says "We are of different kinds."
-    Implication(BKnight, Or(And(AKnight, BKnave), And(AKnave, BKnight))), # If B is saying the truth
-    Implication(BKnave, Not(Or(And(AKnight, BKnave), And(AKnave, BKnight)))) # If B is a lier
+    Implication(
+        BKnight,  # If B is saying the truth
+        Or(
+            And(AKnight, BKnave), 
+            And(AKnave, BKnight)
+        )
+    ),
+    Implication(
+        BKnave,   # If B is a lier
+        Not(
+            Or(
+                And(AKnight, BKnave), 
+                And(AKnave, BKnight)
+            )
+        )
+    )
 )
 
 # Puzzle 3

@@ -13,7 +13,7 @@ CKnave = Symbol("C is a Knave")
 # Knave = Lier
 
 # Each person is either a knight or a knave. Not both at the same time.
-my_knowladge = And(
+my_knowledge = And(
     Or(AKnight, AKnave),
     Not(And(AKnight, AKnave)),
     Or(BKnight, BKnave),
@@ -25,7 +25,7 @@ my_knowladge = And(
 # Puzzle 0
 # A says "I am both a knight and a knave."
 knowledge0 = And(
-    my_knowladge,
+    my_knowledge,
     Implication(AKnight, And(AKnight, AKnave)), # If A is saying the truth, then A is both a knight and a knave
     Implication(AKnave, Not(And(AKnight, AKnave))) # If A is a lier, then A is not both a knight and a knave
 )
@@ -34,7 +34,7 @@ knowledge0 = And(
 # A says "We are both knaves."
 # B says nothing.
 knowledge1 = And(
-    my_knowladge,
+    my_knowledge,
 
     # A says "We are both knaves."
     Implication(AKnight, And(AKnave, BKnave)), # If A is saying the truth

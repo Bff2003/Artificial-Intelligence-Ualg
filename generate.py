@@ -144,23 +144,24 @@ class CrosswordCreator():
         """
 
         # for (var1, var2), overlap in self.crossword.overlaps.items():
-        x_2, y_2 = self.crossword.overlaps[x, y] # overlap coords
-
+        overlap = self.crossword.overlaps[x, y] # overlap coords
         revised = False
-        words_x_to_remove = []
-        for word_x in self.domains[x]:
-            found_equal = False
-            for word_y in self.domains[y]:
-                if (word_x[x_2] == word_y[y_2]):
-                    found_equal = True
-                    revised = True
+        if overlap: # preventing None 
+            x_2, y_2 = overlap
+            words_x_to_remove = []
+            for word_x in self.domains[x]:
+                found_equal = False
+                for word_y in self.domains[y]:
+                    if (word_x[x_2] == word_y[y_2]):
+                        found_equal = True
+                        revised = True
 
-            if not found_equal:
-                words_x_to_remove.append(word_x)
-        
-        for word in words_x_to_remove:
-            self.domains[x].remove(word)
-        
+                if not found_equal:
+                    words_x_to_remove.append(word_x)
+            
+            for word in words_x_to_remove:
+                self.domains[x].remove(word)
+            
         return revised
 
     def ac3(self, arcs=None):
@@ -172,9 +173,46 @@ class CrosswordCreator():
         Return True if arc consistency is enforced and no domains are empty;
         return False if one or more domains end up empty.
 
+        > ac3
+            The ac3 function should, using the AC3 algorithm, enforce arc consistency on the problem. Recall that arc consistency is achieved when all the values in each variable's domain satisfy that variable's binary constraints.
+                Recall that the AC3 algorithm maintains a queue of arcs to process. This function takes an optional argument called arcs, representing an initial list of arcs to process. If arcs is None, your function should start with an initial queue of all of the arcs in the problem. Otherwise, your algorithm should begin with an initial queue of only the arcs that are in the list arcs (where each arc is a tuple (x, y) of a variable x and a different variable y).
+                Recall that to implement AC3, you'll revise each arc in the queue one at a time. Any time you make a change to a domain, though, you may need to add additional arcs to your queue to ensure that other arcs stay consistent.
+                You may find it helpful to call on the revise function in your implementation of ac3.
+                If, in the process of enforcing arc consistency, you remove all of the remaining values from a domain, return False (this means it's impossible to solve the problem, since there are no more possible values for the variable). Otherwise, return True.
+                You do not need to worry about enforcing word uniqueness in this function (you'll implement that check in the consistent function.)
+
+        > ac3 logic
+            function AC-3(csp):
+                queue = all arcs in csp
+                while queue non-empty:
+                    (X, Y) = Dequeue(queue)
+                    if Revise(csp, X, Y):
+                        if size of X.domain == 0:
+                            return false
+                        for each Z in X.neighbors - {Y}:
+                            Enqueue(queue, (Z,X))
+                return true
+
         Variable: def __init__(self, i, j, direction, length):
         """
-        raise NotImplementedError
+
+        # If no arcs, start with queue of all arcs:
+        if not arcs:
+            arcs = []
+            for var_1 in self.domains:
+                for var_2 in self.domains:
+                    if var_1 != var_2:
+                        arcs.append((var_1, var_2))
+
+        while len(arcs) != 0:
+            x, y = arcs.pop()
+            if(self.revise(x, y)):
+                if len(self.domains[x]) == 0:
+                    return False
+                 # If revised, add to arcs all x neighbors
+                for var_z in self.crossword.neighbors(x) - {y}: # remove y from neighbors of x, and iterate the result
+                    arcs.append((var_z, x))
+        return True
 
     def assignment_complete(self, assignment):
         """

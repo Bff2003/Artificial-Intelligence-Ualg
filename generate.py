@@ -146,13 +146,11 @@ class CrosswordCreator():
         # for (var1, var2), overlap in self.crossword.overlaps.items():
         x_2, y_2 = self.crossword.overlaps[x, y] # overlap coords
 
-        breakpoint()
         revised = False
         words_x_to_remove = []
         for word_x in self.domains[x]:
             found_equal = False
             for word_y in self.domains[y]:
-                print(word_x, word_y, word_x[x_2], word_y[y_2])
                 if (word_x[x_2] == word_y[y_2]):
                     found_equal = True
                     revised = True
@@ -163,7 +161,6 @@ class CrosswordCreator():
         for word in words_x_to_remove:
             self.domains[x].remove(word)
         
-        breakpoint()
         return revised
 
     def ac3(self, arcs=None):
@@ -177,7 +174,6 @@ class CrosswordCreator():
 
         Variable: def __init__(self, i, j, direction, length):
         """
-        self.revise(Variable(0, 1, Variable.DOWN, 5), Variable(4, 1, Variable.ACROSS, 4))
         raise NotImplementedError
 
     def assignment_complete(self, assignment):

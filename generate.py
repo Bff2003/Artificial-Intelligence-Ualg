@@ -122,8 +122,49 @@ class CrosswordCreator():
 
         Return True if a revision was made to the domain of `x`; return
         False if no revision was made.
+
+        > revise:
+            The revise function should make the variable x arc consistent with the variable y.
+
+            x and y will both be Variable objects representing variables in the puzzle.
+            Recall that x is arc consistent with y when every value in the domain of x has a possible value in the domain of y that does not cause a conflict. (A conflict in the context of the crossword puzzle is a square for which two variables disagree on what character value it should take on.)
+            To make x arc consistent with y, you'll want to remove any value from the domain of x that does not have a corresponding possible value in the domain of y.
+            Recall that you can access self.crossword.overlaps to get the overlap, if any, between two variables.
+            The domain of y should be left unmodified.
+            The function should return True if a revision was made to the domain of x; it should return False if no revision was made.
+        
+        > logic revise cs50
+            function Revise(csp, X, Y):
+                revised = false
+                for x in X.domain:
+                    if no y in Y.domain satisfies constraint for (X,Y):
+                        delete x from X.domain
+                        revised = true
+                return revised
         """
-        raise NotImplementedError
+
+        # for (var1, var2), overlap in self.crossword.overlaps.items():
+        x_2, y_2 = self.crossword.overlaps[x, y] # overlap coords
+
+        breakpoint()
+        revised = False
+        words_x_to_remove = []
+        for word_x in self.domains[x]:
+            found_equal = False
+            for word_y in self.domains[y]:
+                print(word_x, word_y, word_x[x_2], word_y[y_2])
+                if (word_x[x_2] == word_y[y_2]):
+                    found_equal = True
+                    revised = True
+
+            if not found_equal:
+                words_x_to_remove.append(word_x)
+        
+        for word in words_x_to_remove:
+            self.domains[x].remove(word)
+        
+        breakpoint()
+        return revised
 
     def ac3(self, arcs=None):
         """
@@ -133,7 +174,10 @@ class CrosswordCreator():
 
         Return True if arc consistency is enforced and no domains are empty;
         return False if one or more domains end up empty.
+
+        Variable: def __init__(self, i, j, direction, length):
         """
+        self.revise(Variable(0, 1, Variable.DOWN, 5), Variable(4, 1, Variable.ACROSS, 4))
         raise NotImplementedError
 
     def assignment_complete(self, assignment):
@@ -182,8 +226,6 @@ class CrosswordCreator():
 
 
 def main():
-    pdb.set_trace()
-
     # Check usage
     if len(sys.argv) not in [3, 4]:
         sys.argv.append("data\\structure0.txt")

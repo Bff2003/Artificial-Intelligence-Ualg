@@ -144,23 +144,24 @@ class CrosswordCreator():
         """
 
         # for (var1, var2), overlap in self.crossword.overlaps.items():
-        x_2, y_2 = self.crossword.overlaps[x, y] # overlap coords
-
+        overlap = self.crossword.overlaps[x, y] # overlap coords
         revised = False
-        words_x_to_remove = []
-        for word_x in self.domains[x]:
-            found_equal = False
-            for word_y in self.domains[y]:
-                if (word_x[x_2] == word_y[y_2]):
-                    found_equal = True
-                    revised = True
+        if overlap: # preventing None 
+            x_2, y_2 = overlap
+            words_x_to_remove = []
+            for word_x in self.domains[x]:
+                found_equal = False
+                for word_y in self.domains[y]:
+                    if (word_x[x_2] == word_y[y_2]):
+                        found_equal = True
+                        revised = True
 
-            if not found_equal:
-                words_x_to_remove.append(word_x)
-        
-        for word in words_x_to_remove:
-            self.domains[x].remove(word)
-        
+                if not found_equal:
+                    words_x_to_remove.append(word_x)
+            
+            for word in words_x_to_remove:
+                self.domains[x].remove(word)
+            
         return revised
 
     def ac3(self, arcs=None):
@@ -204,7 +205,17 @@ class CrosswordCreator():
                     if var_1 != var_2:
                         arcs.append((var_1, var_2))
         breakpoint()
-    
+
+        while len(arcs) != 0:
+            x, y = arcs.pop()
+            print(x, y)
+            if(self.revise(x, y)):
+                if len(self.domains[x]) == 0:
+                    return False
+                 # If revised, add to arcs all x neighbors
+                for var_z in self.crossword.neighbors(x) - {y}: # remove y from neighbors of x, and iterate the result
+                    arcs.append((var_z, x))
+            breakpoint()
         return True
 
     def assignment_complete(self, assignment):

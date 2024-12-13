@@ -222,8 +222,18 @@ class CrosswordCreator():
         """
         Return True if `assignment` is complete (i.e., assigns a value to each
         crossword variable); return False otherwise.
+
+        The assignment_complete function should (as the name suggests) check to see if a given assignment is complete.
+            An assignment is a dictionary where the keys are Variable objects and the values are strings representing the words those variables will take on.
+            An assignment is complete if every crossword variable is assigned to a value (regardless of what that value is).
+            The function should return True if the assignment is complete and return False otherwise.
         """
-        raise NotImplementedError
+        breakpoint()
+        # An assignment is complete if every crossword variable is assigned to a value (regardless of what that value is).
+        for variable in self.crossword.variables:
+            if variable not in assignment or assignment[variable] is None:
+                return False
+        return True
 
     def consistent(self, assignment):
         """

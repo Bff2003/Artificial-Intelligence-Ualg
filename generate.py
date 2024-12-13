@@ -239,8 +239,31 @@ class CrosswordCreator():
         """
         Return True if `assignment` is consistent (i.e., words fit in crossword
         puzzle without conflicting characters); return False otherwise.
+
+        The consistent function should check to see if a given assignment is consistent.
+            An assignment is a dictionary where the keys are Variable objects and the values are strings representing the words those variables will take on. Note that the assignment may not be complete: not all variables will necessarily be present in the assignment.
+            An assignment is consistent if it satisfies all of the constraints of the problem: that is to say, all values are distinct, every value is the correct length, and there are no conflicts between neighboring variables.
+            The function should return True if the assignment is consistent and return False otherwise.
         """
-        raise NotImplementedError
+        # Verify duplicated entrys | all values are distinct
+        words = list(assignment.values())
+        if len(words) != len(set(words)):
+            return False
+
+        # Verify word lengths | every value is the correct length
+        for variable, word in assignment.items():
+            if len(word) != variable.length:
+                return False
+
+        # Verify intersections | no conflicts between neighboring variables
+        for variable, word in assignment.items():
+            for neighbor in self.crossword.neighbors(variable):
+                if neighbor in assignment:
+                    i, j = self.crossword.overlaps[variable, neighbor]
+                    if word[i] != assignment[neighbor][j]: # if intersection is not valid ex. E with B and not B with B
+                        return False
+
+        return True
 
     def order_domain_values(self, var, assignment):
         """

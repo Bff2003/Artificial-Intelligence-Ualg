@@ -204,18 +204,15 @@ class CrosswordCreator():
                 for var_2 in self.domains:
                     if var_1 != var_2:
                         arcs.append((var_1, var_2))
-        breakpoint()
 
         while len(arcs) != 0:
             x, y = arcs.pop()
-            print(x, y)
             if(self.revise(x, y)):
                 if len(self.domains[x]) == 0:
                     return False
                  # If revised, add to arcs all x neighbors
                 for var_z in self.crossword.neighbors(x) - {y}: # remove y from neighbors of x, and iterate the result
                     arcs.append((var_z, x))
-            breakpoint()
         return True
 
     def assignment_complete(self, assignment):
@@ -228,7 +225,6 @@ class CrosswordCreator():
             An assignment is complete if every crossword variable is assigned to a value (regardless of what that value is).
             The function should return True if the assignment is complete and return False otherwise.
         """
-        breakpoint()
         # An assignment is complete if every crossword variable is assigned to a value (regardless of what that value is).
         for variable in self.crossword.variables:
             if variable not in assignment or assignment[variable] is None:

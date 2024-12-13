@@ -271,8 +271,31 @@ class CrosswordCreator():
         the number of values they rule out for neighboring variables.
         The first value in the list, for example, should be the one
         that rules out the fewest values among the neighbors of `var`.
+
+        he order_domain_values function should return a list of all of the values in the domain of var, ordered according to the least-constraining values heuristic.
+            var will be a Variable object, representing a variable in the puzzle.
+            Recall that the least-constraining values heuristic is computed as the number of values ruled out for neighboring unassigned variables. That is to say, if assigning var to a particular value results in eliminating n possible choices for neighboring variables, you should order your results in ascending order of n.
+            Note that any variable present in assignment already has a value, and therefore shouldn't be counted when computing the number of values ruled out for neighboring unassigned variables.
+            For domain values that eliminate the same number of possible choices for neighboring variables, any ordering is acceptable.
+            Recall that you can access self.crossword.overlaps to get the overlap, if any, between two variables.
+            It may be helpful to first implement this function by returning a list of values in any arbitrary order (which should still generate correct crossword puzzles). Once your algorithm is working, you can then go back and ensure that the values are returned in the correct order.
+            You may find it helpful to sort a list according to a particular key: Python contains some helpful functions for achieving this.
         """
-        raise NotImplementedError
+        neighbors = self.crossword.neighbors(var) - set(assignment.keys())
+        def conflicts(value) -> int:
+            """Get the number of conflicts"""
+            count = 0
+            for neighbor in neighbors:
+                overlap = self.crossword.overlaps[var, neighbor]
+                if overlap:
+                    i, j = overlap
+                    count = 0
+                    for neighbor_value in self.domains[neighbor]:
+                        if neighbor_value[j] != value[i]:
+                            count += 1
+            return count
+
+        return sorted(self.domains[var], key=conflicts)
 
     def select_unassigned_variable(self, assignment):
         """

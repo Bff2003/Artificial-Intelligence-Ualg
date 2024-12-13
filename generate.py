@@ -304,8 +304,23 @@ class CrosswordCreator():
         in its domain. If there is a tie, choose the variable with the highest
         degree. If there is a tie, any of the tied variables are acceptable
         return values.
+
+        The select_unassigned_variable function should return a single variable in the crossword puzzle that is not yet assigned by assignment, according to the minimum remaining value heuristic and then the degree heuristic.
+            An assignment is a dictionary where the keys are Variable objects and the values are strings representing the words those variables will take on. You may assume that the assignment will not be complete: not all variables will be present in the assignment.
+            Your function should return a Variable object. You should return the variable with the fewest number of remaining values in its domain. If there is a tie between variables, you should choose among whichever among those variables has the largest degree (has the most neighbors). If there is a tie in both cases, you may choose arbitrarily among tied variables.
+            It may be helpful to first implement this function by returning any arbitrary unassigned variable (which should still generate correct crossword puzzles). Once your algorithm is working, you can then go back and ensure that you are returning a variable according to the heuristics.
+            You may find it helpful to sort a list according to a particular key: Python contains some helpful functions for achieving this.
         """
-        raise NotImplementedError
+        # add unassigned variables
+        unassigned = []
+        for var in self.crossword.variables:
+            if var not in assignment:
+                unassigned.append(var)
+
+        return min(
+            unassigned,
+            key=lambda var: (len(self.domains[var]), -len(self.crossword.neighbors(var)))
+        )
 
     def backtrack(self, assignment):
         """

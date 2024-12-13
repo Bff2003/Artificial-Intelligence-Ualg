@@ -218,15 +218,47 @@ class CrosswordCreator():
         """
         Return True if `assignment` is complete (i.e., assigns a value to each
         crossword variable); return False otherwise.
+
+        The assignment_complete function should (as the name suggests) check to see if a given assignment is complete.
+            An assignment is a dictionary where the keys are Variable objects and the values are strings representing the words those variables will take on.
+            An assignment is complete if every crossword variable is assigned to a value (regardless of what that value is).
+            The function should return True if the assignment is complete and return False otherwise.
         """
-        raise NotImplementedError
+        # An assignment is complete if every crossword variable is assigned to a value (regardless of what that value is).
+        for variable in self.crossword.variables:
+            if variable not in assignment or assignment[variable] is None:
+                return False
+        return True
 
     def consistent(self, assignment):
         """
         Return True if `assignment` is consistent (i.e., words fit in crossword
         puzzle without conflicting characters); return False otherwise.
+
+        The consistent function should check to see if a given assignment is consistent.
+            An assignment is a dictionary where the keys are Variable objects and the values are strings representing the words those variables will take on. Note that the assignment may not be complete: not all variables will necessarily be present in the assignment.
+            An assignment is consistent if it satisfies all of the constraints of the problem: that is to say, all values are distinct, every value is the correct length, and there are no conflicts between neighboring variables.
+            The function should return True if the assignment is consistent and return False otherwise.
         """
-        raise NotImplementedError
+        # Verify duplicated entrys | all values are distinct
+        words = list(assignment.values())
+        if len(words) != len(set(words)):
+            return False
+
+        # Verify word lengths | every value is the correct length
+        for variable, word in assignment.items():
+            if len(word) != variable.length:
+                return False
+
+        # Verify intersections | no conflicts between neighboring variables
+        for variable, word in assignment.items():
+            for neighbor in self.crossword.neighbors(variable):
+                if neighbor in assignment:
+                    i, j = self.crossword.overlaps[variable, neighbor]
+                    if word[i] != assignment[neighbor][j]: # if intersection is not valid ex. E with B and not B with B
+                        return False
+
+        return True
 
     def order_domain_values(self, var, assignment):
         """
@@ -234,8 +266,31 @@ class CrosswordCreator():
         the number of values they rule out for neighboring variables.
         The first value in the list, for example, should be the one
         that rules out the fewest values among the neighbors of `var`.
+
+        he order_domain_values function should return a list of all of the values in the domain of var, ordered according to the least-constraining values heuristic.
+            var will be a Variable object, representing a variable in the puzzle.
+            Recall that the least-constraining values heuristic is computed as the number of values ruled out for neighboring unassigned variables. That is to say, if assigning var to a particular value results in eliminating n possible choices for neighboring variables, you should order your results in ascending order of n.
+            Note that any variable present in assignment already has a value, and therefore shouldn't be counted when computing the number of values ruled out for neighboring unassigned variables.
+            For domain values that eliminate the same number of possible choices for neighboring variables, any ordering is acceptable.
+            Recall that you can access self.crossword.overlaps to get the overlap, if any, between two variables.
+            It may be helpful to first implement this function by returning a list of values in any arbitrary order (which should still generate correct crossword puzzles). Once your algorithm is working, you can then go back and ensure that the values are returned in the correct order.
+            You may find it helpful to sort a list according to a particular key: Python contains some helpful functions for achieving this.
         """
-        raise NotImplementedError
+        neighbors = self.crossword.neighbors(var) - set(assignment.keys())
+        def conflicts(value) -> int:
+            """Get the number of conflicts"""
+            count = 0
+            for neighbor in neighbors:
+                overlap = self.crossword.overlaps[var, neighbor]
+                if overlap:
+                    i, j = overlap
+                    count = 0
+                    for neighbor_value in self.domains[neighbor]:
+                        if neighbor_value[j] != value[i]:
+                            count += 1
+            return count
+
+        return sorted(self.domains[var], key=conflicts)
 
     def select_unassigned_variable(self, assignment):
         """
@@ -244,8 +299,23 @@ class CrosswordCreator():
         in its domain. If there is a tie, choose the variable with the highest
         degree. If there is a tie, any of the tied variables are acceptable
         return values.
+
+        The select_unassigned_variable function should return a single variable in the crossword puzzle that is not yet assigned by assignment, according to the minimum remaining value heuristic and then the degree heuristic.
+            An assignment is a dictionary where the keys are Variable objects and the values are strings representing the words those variables will take on. You may assume that the assignment will not be complete: not all variables will be present in the assignment.
+            Your function should return a Variable object. You should return the variable with the fewest number of remaining values in its domain. If there is a tie between variables, you should choose among whichever among those variables has the largest degree (has the most neighbors). If there is a tie in both cases, you may choose arbitrarily among tied variables.
+            It may be helpful to first implement this function by returning any arbitrary unassigned variable (which should still generate correct crossword puzzles). Once your algorithm is working, you can then go back and ensure that you are returning a variable according to the heuristics.
+            You may find it helpful to sort a list according to a particular key: Python contains some helpful functions for achieving this.
         """
-        raise NotImplementedError
+        # add unassigned variables
+        unassigned = []
+        for var in self.crossword.variables:
+            if var not in assignment:
+                unassigned.append(var)
+
+        return min(
+            unassigned,
+            key=lambda var: (len(self.domains[var]), -len(self.crossword.neighbors(var)))
+        )
 
     def backtrack(self, assignment):
         """
@@ -255,8 +325,25 @@ class CrosswordCreator():
         `assignment` is a mapping from variables (keys) to words (values).
 
         If no assignment is possible, return None.
+            The backtrack function should accept a partial assignment assignment as input and, using backtracking search, return a complete satisfactory assignment of variables to values if it is possible to do so.
+            An assignment is a dictionary where the keys are Variable objects and the values are strings representing the words those variables will take on. The input assignment may not be complete (not all variables will necessarily have values).
+            If it is possible to generate a satisfactory crossword puzzle, your function should return the complete assignment: a dictionary where each variable is a key and the value is the word that the variable should take on. If no satisfying assignment is possible, the function should return None.
+            If you would like, you may find that your algorithm is more efficient if you interleave search with inference (as by maintaining arc consistency every time you make a new assignment). You are not required to do this, but you are permitted to, so long as your function still produces correct results. (It is for this reason that the ac3 function allows an arcs argument, in case you’d like to start with a different queue of arcs.)
         """
-        raise NotImplementedError
+        if self.assignment_complete(assignment):
+            return assignment
+
+        var = self.select_unassigned_variable(assignment)
+
+        for value in self.order_domain_values(var, assignment):
+            new_assignment = assignment.copy()
+            new_assignment[var] = value
+            if self.consistent(new_assignment):
+                result = self.backtrack(new_assignment)
+                if result is not None:
+                    return result
+
+        return None
 
 
 def main():

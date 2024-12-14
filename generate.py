@@ -142,27 +142,31 @@ class CrosswordCreator():
                         revised = true
                 return revised
         """
+        # Get the overlap between x and y
+        overlap = self.crossword.overlaps[x, y]
+        if overlap is None:  # No overlap, no need to revise
+            return False
 
-        # for (var1, var2), overlap in self.crossword.overlaps.items():
-        overlap = self.crossword.overlaps[x, y] # overlap coords
         revised = False
-        if overlap: # preventing None 
-            x_2, y_2 = overlap
-            words_x_to_remove = []
-            for word_x in self.domains[x]:
-                found_equal = False
-                for word_y in self.domains[y]:
-                    if (word_x[x_2] == word_y[y_2]):
-                        found_equal = True
-                        revised = True
+        x_pos, y_pos = overlap  # Overlap positions (indices in the words)
+        words_to_remove = []
 
-                if not found_equal:
-                    words_x_to_remove.append(word_x)
+        for word_x in self.domains[x]:
+            has_match = False
+            for word_y in self.domains[y]:
+                if word_x[x_pos] == word_y[y_pos]:
+                    has_match = True
+                    break
             
-            for word in words_x_to_remove:
-                self.domains[x].remove(word)
-            
+            if not has_match:
+                words_to_remove.append(word_x)
+
+        for word in words_to_remove:
+            self.domains[x].remove(word)
+            revised = True  # Revised if at least one word is removed
+
         return revised
+
 
     def ac3(self, arcs=None):
         """
@@ -197,21 +201,26 @@ class CrosswordCreator():
         """
 
         # If no arcs, start with queue of all arcs:
-        if not arcs:
+        if arcs is None:
             arcs = []
             for var_1 in self.domains:
                 for var_2 in self.domains:
                     if var_1 != var_2:
                         arcs.append((var_1, var_2))
 
-        while len(arcs) != 0:
-            x, y = arcs.pop()
-            if(self.revise(x, y)):
+        queue = list(arcs)
+
+        while queue:
+            x, y = queue.pop(0)
+            
+            if self.revise(x, y):
                 if len(self.domains[x]) == 0:
-                    return False
-                 # If revised, add to arcs all x neighbors
-                for var_z in self.crossword.neighbors(x) - {y}: # remove y from neighbors of x, and iterate the result
-                    arcs.append((var_z, x))
+                    return False  # No solution possible
+                
+                # Add all neighbors of x (except y) back to the queue
+                for z in self.crossword.neighbors(x) - {y}:
+                    queue.append((z, x))
+        
         return True
 
     def assignment_complete(self, assignment):

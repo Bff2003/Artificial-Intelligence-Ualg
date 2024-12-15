@@ -3,6 +3,7 @@ import tensorflow as tf
 
 from PIL import Image, ImageDraw, ImageFont
 from transformers import AutoTokenizer, TFBertForMaskedLM
+import os
 
 # Pre-trained masked language model
 MODEL = "bert-base-uncased"
@@ -14,6 +15,7 @@ K = 3
 FONT = ImageFont.truetype("assets/fonts/OpenSans-Regular.ttf", 28)
 GRID_SIZE = 40
 PIXELS_PER_WORD = 200
+OUTPUT_FOLDER = "./output/"
 
 
 def main():
@@ -44,9 +46,18 @@ def get_mask_token_index(mask_token_id, inputs):
     """
     Return the index of the token with the specified `mask_token_id`, or
     `None` if not present in the `inputs`.
+
+    The function accepts the ID of the mask token (represented as an ) and the tokenizer-generated , which will be of type . It should return the index of the mask token in the input sequence of tokens. get_mask_token_indexintinputstransformers.BatchEncoding
+        The index should be 0-indexed. For example, if the third input ID is the mask token ID, then your function should return .2
+        If the mask token is not present in the input sequence at all, your function should return .None
+        You may assume that there will not be more than one mask token in the input sequence.
+        You may find it helpful to look at the documentation, in particular at the return value of calling a tokenizer, to see what fields the will have that you might want to access.transformersBatchEncoding
     """
-    # TODO: Implement this function
-    raise NotImplementedError
+    # If the mask token is not present in the input sequence at all, your function should return .None
+    for i, token in enumerate(inputs.input_ids[0]):
+        if token == mask_token_id:
+            return i
+    return None
 
 
 
@@ -126,7 +137,8 @@ def generate_diagram(layer_number, head_number, tokens, attention_weights):
             draw.rectangle((x, y, x + GRID_SIZE, y + GRID_SIZE), fill=color)
 
     # Save image
-    img.save(f"Attention_Layer{layer_number}_Head{head_number}.png")
+    os.makedirs(OUTPUT_FOLDER + str(layer_number) + "/", exist_ok=True)
+    img.save(f"{OUTPUT_FOLDER + str(layer_number) + "/"}{head_number}.png")
 
 
 if __name__ == "__main__":

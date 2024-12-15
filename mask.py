@@ -65,9 +65,14 @@ def get_color_for_attention_score(attention_score):
     """
     Return a tuple of three integers representing a shade of gray for the
     given `attention_score`. Each value should be in the range [0, 255].
+    
+    The get_color_for_attention_score function should accept an attention score (a value between 0 and 1, inclusive) and output a tuple of three integers representing an RGB triple (one red value, one green value, one blue value) for the color to use for that attention cell in the attention diagram.
+        If the attention score is 0, the color should be fully black (the value (0, 0, 0)). If the attention score is 1, the color should be fully white (the value (255, 255, 255)). For attention scores in between, the color should be a shade of gray that scales linearly with the attention score.
+        For a color to be a shade of gray, the red, blue, and green values should all be equal.
+        The red, green, and blue values must all be integers, but you can choose whether to truncate or round the values. For example, for the attention score 0.25, your function may return either (63, 63, 63) or (64, 64, 64), since 25% of 255 is 63.75.
     """
-    # TODO: Implement this function
-    raise NotImplementedError
+    attention_score = attention_score.numpy()
+    return (round(attention_score * 255), round(attention_score * 255), round(attention_score * 255))
 
 
 

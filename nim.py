@@ -170,8 +170,28 @@ class NimAI():
 
         If multiple actions have the same Q-value, any of those
         options is an acceptable return value.
+
+        The choose_action function should accept a state as input (and optionally an epsilon flag for whether to use the epsilon-greedy algorithm), and return an available action in that state.
+            1. If epsilon is False, your function should behave greedily and return the best possible action available in that state (i.e., the action that has the highest Q-value, using 0 if no Q-value is known).
+            2. If epsilon is True, your function should behave according to the epsilon-greedy algorithm, choosing a random available action with probability self.epsilon and otherwise choosing the best action available.
+            3. If multiple actions have the same Q-value, any of those options is an acceptable return value.
+
         """
-        raise NotImplementedError
+        available_actions = list(Nim.available_actions(state))
+
+        if epsilon and random.random() < self.epsilon:
+            return random.choice(available_actions)
+        
+        best_action = None
+        best_q_value = float('-inf')
+        
+        for action in available_actions:
+            q_value = self.get_q_value(state, action)
+            if q_value > best_q_value:
+                best_q_value = q_value
+                best_action = action
+
+        return best_action
 
 
 def train(n):

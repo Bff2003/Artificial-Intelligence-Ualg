@@ -140,16 +140,16 @@ class NimAI():
         `state`, return 0.
 
         The best_future_reward function accepts a state as input and returns the best possible reward for any available action in that state, according to the data in self.q.
-	        1. For any action that doesn't already exist in self.q for the given state, you should assume it has a Q-value of 0.
-            2. If no actions are available in the state, you should return 0.
+        - 1. For any action that doesn't already exist in self.q for the given state, you should assume it has a Q-value of 0.
+        - 2. If no actions are available in the state, you should return 0.
         """
         available_actions = Nim.available_actions(state)
-        if not available_actions: # 1.
+        if not available_actions:  # 1.
             return 0
 
         max_q = float('-inf')
         for action in available_actions:
-            actual_q = self.get_q_value(state, action) # 2.
+            actual_q = self.get_q_value(state, action)  # 2.
 
             if actual_q > max_q:
                 max_q = actual_q

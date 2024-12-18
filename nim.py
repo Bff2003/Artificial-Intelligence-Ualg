@@ -101,7 +101,7 @@ class NimAI():
         Return the Q-value for the state `state` and the action `action`.
         If no Q-value exists yet in `self.q`, return 0.
         """
-        q = self.q.get((state, action))
+        q = self.q.get((tuple(state), action))
         if q is None:
             return 0 
         else:
@@ -121,8 +121,13 @@ class NimAI():
         where `old value estimate` is the previous Q-value,
         `alpha` is the learning rate, and `new value estimate`
         is the sum of the current reward and estimated future rewards.
+        
+        new value estimate represents the sum of the reward received for the current action and the estimate of all the future rewards
+        old value estimate is just the existing value for Q(s, a).
         """
-        raise NotImplementedError
+        new_q = old_q + self.alpha * ((reward + future_rewards) - old_q)
+
+        self.q[(tuple(state), action)] = new_q
 
     def best_future_reward(self, state):
         """
